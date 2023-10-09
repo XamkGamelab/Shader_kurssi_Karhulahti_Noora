@@ -41,9 +41,13 @@ Shader "Custom/NewSurfaceShader"
             Varyings Vert(const Attributes input)
             {
                 Varyings output;
-    
-                output.positionHCS = TransformObjectToHClip(input.positionOS);
-                output.positionWS = TransformObjectToWorld(input.positionOS);
+
+                output.positionHCS = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, mul(UNITY_MATRIX_M, float4(input.positionOS, 1))));
+                //output.positionHCS = TransformObjectToHClip(input.positionOS);
+
+                output.positionWS = mul(UNITY_MATRIX_M, input.positionOS);
+                //output.positionWS = TransformObjectToWorld(input.positionOS);
+
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS); //Vertexin normaalin muuntaminen maailman koordinaatteihin
     
                 return output;
