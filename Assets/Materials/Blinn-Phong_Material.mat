@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New Material
+  m_Name: Blinn-Phong_Material
   m_Shader: {fileID: 4800000, guid: e0d2429ed78c03a409f7eab5d8550deb, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0

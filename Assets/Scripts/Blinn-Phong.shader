@@ -2,7 +2,7 @@ Shader "Custom/Blinn-Phong"
 {
     Properties
     {
-        _Color("Object color", Color) = (1, 1, 1, 1)
+        _Color("Object color", Color) = (0.1, 0.4, 0.1)
         _Shininess ("Object shininess", Float) = 1
     }
     SubShader
@@ -22,7 +22,7 @@ Shader "Custom/Blinn-Phong"
 
             struct Attributes
             {
-                float3 positionOS : POSITION;
+                float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
             };
 
@@ -35,37 +35,37 @@ Shader "Custom/Blinn-Phong"
 
             CBUFFER_START(UnityPerMaterial)
             float4 _Color;
-            float4 _Shininess;
+            float _Shininess;
             CBUFFER_END
 
-            Varyings Vert(const Attributes input)
+            Varyings Vert(Attributes input)
             {
                 Varyings output;
-
-                output.positionHCS = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, mul(UNITY_MATRIX_M, float4(input.positionOS, 1))));
-                output.positionWS = mul(UNITY_MATRIX_M, input.positionOS);
+                
+                output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
+                output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 
                 return output;
             }
 
-            float4 BlinnPhong(Varyings i)
+            float4 BlinnPhong(const Varyings i)
             {
-                Light mainLight = GetMainLight();
+                const Light mainLight = GetMainLight();
 
                 // Ambient lighting
-                float3 ambient = 0.1 * mainLight.color;
+                const float3 ambient = 0.1 * mainLight.color;
                 
-                float3 diffuse = saturate(dot(i.normalWS, mainLight.direction)) * mainLight.color;
+                const float3 diffuse = saturate(dot(i.normalWS, mainLight.direction)) * mainLight.color;
 
                 // Suunta fragmentista kameraan world spacessa
-                float3 viewDir = GetWorldSpaceNormalizeViewDir(i.positionWS);
+                const float3 viewDir = GetWorldSpaceNormalizeViewDir(i.positionWS);
 
                 // Puolivälivektori
-                float3 halfDir = normalize(mainLight.direction + viewDir);
+                const float3 halfDir = normalize(mainLight.direction + viewDir);
 
                 // Specular lighting
-                float3 specular = pow(saturate(dot(i.normalWS, halfDir)), _Shininess) * mainLight.color;
+                const float3 specular = pow(saturate(dot(i.normalWS, halfDir)), _Shininess) * mainLight.color;
 
                 // Yhdistä valaistuksen osat ja laske väri
                 return float4((ambient + diffuse + specular) * _Color, 1);
