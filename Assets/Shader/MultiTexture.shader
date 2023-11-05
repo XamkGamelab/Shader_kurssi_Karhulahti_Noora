@@ -11,9 +11,9 @@ Shader "Custom/MultiTexture"
         Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "Queue" = "Geometry" }
         Pass
         {
-            CGPROGRAM
-            
-            #include "UnityCG.cginc"
+            HLSLPROGRAM
+
+             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             #pragma vertex Vert
             #pragma fragment Frag
@@ -31,20 +31,21 @@ Shader "Custom/MultiTexture"
 
             struct Attributes
             {
-                float4 vertex : POSITION;
+                float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
             };
 
             struct Varyings
             {
-                float4 vertex : SV_POSITION;
+                float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
             };
 
             Varyings Vert (Attributes input)
             {
                 Varyings output;
-                output.vertex = UnityObjectToClipPos(input.vertex);
+                
+                output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.uv = input.uv;
                 return output;
             }
@@ -56,18 +57,18 @@ Shader "Custom/MultiTexture"
 				const float2 blend_uv = TRANSFORM_TEX(input.uv, _Blend);
 
 				//read colors from textures
-				fixed4 main_color = tex2D(_MainTex1, main_uv);
-				fixed4 secondary_color = tex2D(_MainTex2, secondary_uv);
-				fixed4 blend_color = tex2D(_Blend, blend_uv);
+				float4 main_color = tex2D(_MainTex1, main_uv);
+				float4 secondary_color = tex2D(_MainTex2, secondary_uv);
+				float4 blend_color = tex2D(_Blend, blend_uv);
 
 				//take the red value of the color from the blend texture
-				fixed blend_value = blend_color.r;
+				float4 blend_value = blend_color.r;
 
 				//interpolate between the colors
-				fixed4 col = lerp(main_color, secondary_color, blend_value);
+				float4 col = lerp(main_color, secondary_color, blend_value);
 				return col;
             }
-            ENDCG
+            ENDHLSL
         }
         Pass
         {
