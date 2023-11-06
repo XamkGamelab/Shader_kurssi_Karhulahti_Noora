@@ -24,11 +24,9 @@ Shader "Custom/NormalMapTexture"
             float _Shininess;
             CBUFFER_END
 
-            TEXTURE2D(_MainTex);
-            SAMPLER(sampler_MainTex);
+            TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
 
-            TEXTURE2D(_NormalMap);
-            SAMPLER(sampler_NormalMap);
+            TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
 
             struct Attributes
             {
